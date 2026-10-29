@@ -8,9 +8,8 @@ import './styles/tokens.css';
 import './styles/base.css';
 import './App.css';
 
-const API_BASE_URL = 'http://localhost:8787';
-/*const API_BASE_URL =
-  'https://pdf-insight-api-production.damian-jaron.workers.dev';*/
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL || 'http://localhost:8787';
 
 interface ExtractionInfo {
   fileName: string;
@@ -23,7 +22,6 @@ function App() {
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isDebugMode, setIsDebugMode] = useState(false);
 
   const handleFileSelect = async (file: File) => {
     setIsProcessing(true);
@@ -65,32 +63,9 @@ function App() {
   };
 
   return (
-    <div className={`app${isDebugMode ? ' debug-mode' : ''}`} style={isDebugMode ? {
-      '--dur-slow': '0ms',
-      '--dur': '0ms',
-      '--dur-fast': '0ms'
-    } as React.CSSProperties : undefined}>
+    <div className="app">
       <div className="app-ambient" aria-hidden="true" />
       <header className="app-header">
-        <button
-          onClick={() => setIsDebugMode(!isDebugMode)}
-          style={{
-            position: 'fixed',
-            top: '1rem',
-            right: '1rem',
-            zIndex: 1000,
-            padding: '0.5rem 1rem',
-            fontSize: '0.75rem',
-            background: isDebugMode ? 'var(--lime)' : 'var(--text)',
-            color: isDebugMode ? 'var(--on-lime)' : 'var(--bg)',
-            border: 'none',
-            borderRadius: '9999px',
-            cursor: 'pointer',
-            fontWeight: 600
-          }}
-        >
-          {isDebugMode ? '✓ Debug ON' : 'Debug'}
-        </button>
         <div className="brand-row" aria-hidden="true">
           <span className="brand-mark">
             <FileIcon size={16} strokeWidth={2.25} />
