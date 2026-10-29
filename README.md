@@ -28,7 +28,7 @@ Szczegółowy plan implementacji: [ARCHITECTURE.md](./ARCHITECTURE.md)
    ↓
 3. POST do backend API
    ↓
-4. Backend wysyła do AI (Claude API)
+4. Backend wysyła do AI (Google Gemini API)
    ↓
 5. AI zwraca podsumowanie + dane JSON
    ↓
@@ -109,11 +109,11 @@ src/
 ## Kryteria Zaliczenia (MUST)
 
 - [x] Wgranie PDF (drag & drop, max 10 MB)
-- [ ] Ekstrakcja tekstu z pdf.js
-- [ ] Podsumowanie (3-5 zdań)
-- [ ] Dane strukturalne (JSON schema)
-- [ ] Widok i eksport JSON
-- [ ] Stany interfejsu (ładowanie, błąd, pusty)
+- [x] Ekstrakcja tekstu z pdf.js
+- [x] Podsumowanie (3-5 zdań)
+- [x] Dane strukturalne (JSON schema)
+- [x] Widok i eksport JSON
+- [x] Stany interfejsu (ładowanie, błąd, pusty)
 - [x] Publiczne demo na GitHub Pages
 
 ## Znane Ograniczenia
