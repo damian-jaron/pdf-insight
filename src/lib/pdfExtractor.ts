@@ -9,23 +9,22 @@ export interface ExtractedPDFData {
 }
 
 function cleanupText(text: string): string {
-  // Podziel tekst na słowa (rozdzielone spacjami/nowymi liniami)
-  const words = text.split(/\s+/)
+  // Znormalizuj Unicode do NFC (precomposed form)
+  let normalized = text.normalize('NFC')
 
-  // Dla każdego słowa: usuń spacje wewnątrz
-  // "wy ł ą cznie" → "wyłącznie"
+  // Usuń spacje tylko gdy są polskie znaki specjalne
+  // "wy ł" → "wył", "ł ą" → "ła"
+  normalized = normalized.replace(/([ąćęłńóśźż]) ([a-ząćęłńóśźż])/g, '$1$2')
+  normalized = normalized.replace(/([a-z]) ([ąćęłńóśźż])/gi, '$1$2')
+
+  // Podziel tekst na słowa (rozdzielone spacjami/nowymi liniami)
+  const words = normalized.split(/\s+/)
+
+  // Dla każdego słowa: usuń pozostałe spacje
   const cleanWords = words.map((word) => word.replace(/\s/g, ''))
 
   // Połącz słowa z pojedynczymi spacjami
   let cleaned = cleanWords.join(' ')
-
-  // Dodaj spacje przed wielkimi literami jeśli brakuje
-  // "AnnęKowalczyk" → "Annę Kowalczyk"
-  cleaned = cleaned.replace(/([a-ząćęłńóśźż])([A-ZĄĆĘŁŃÓŚŹŻ])/g, '$1 $2')
-
-  // Dodaj spacje po znakach interpunkcyjnych jeśli brakuje
-  // "złreprezentowana" → "zł reprezentowana"
-  cleaned = cleaned.replace(/([,.!?;:żł])\s*([a-ząćęłńóśźż])/gi, '$1 $2')
 
   return cleaned.trim()
 }
