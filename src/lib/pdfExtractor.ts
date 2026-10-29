@@ -8,6 +8,28 @@ export interface ExtractedPDFData {
   fileName: string
 }
 
+function cleanupText(text: string): string {
+  // Podziel tekst na słowa (rozdzielone spacjami/nowymi liniami)
+  const words = text.split(/\s+/)
+
+  // Dla każdego słowa: usuń spacje wewnątrz
+  // "wy ł ą cznie" → "wyłącznie"
+  const cleanWords = words.map((word) => word.replace(/\s/g, ''))
+
+  // Połącz słowa z pojedynczymi spacjami
+  let cleaned = cleanWords.join(' ')
+
+  // Dodaj spacje przed wielkimi literami jeśli brakuje
+  // "AnnęKowalczyk" → "Annę Kowalczyk"
+  cleaned = cleaned.replace(/([a-ząćęłńóśźż])([A-ZĄĆĘŁŃÓŚŹŻ])/g, '$1 $2')
+
+  // Dodaj spacje po znakach interpunkcyjnych jeśli brakuje
+  // "złreprezentowana" → "zł reprezentowana"
+  cleaned = cleaned.replace(/([,.!?;:żł])\s*([a-ząćęłńóśźż])/gi, '$1 $2')
+
+  return cleaned.trim()
+}
+
 export async function extractTextFromPDF(
   file: File,
 ): Promise<ExtractedPDFData> {
@@ -36,7 +58,7 @@ export async function extractTextFromPDF(
     }
 
     return {
-      text: fullText.trim(),
+      text: cleanupText(fullText),
       pages: pageCount,
       fileName: file.name,
     }

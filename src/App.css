@@ -65,3 +65,14 @@ main {
   font-family: 'Courier New', monospace;
   line-height: 1.4;
 }
+
+.mock-notice {
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid #3b82f6;
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 2rem 0;
+  color: #93c5fd;
+  text-align: center;
+  font-weight: 500;
+}
