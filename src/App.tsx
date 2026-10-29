@@ -1,14 +1,24 @@
+import { useState } from 'react'
+import { PDFUploader } from './components/PDFUploader'
 import './App.css'
 
 function App() {
+  const [isLoading, setIsLoading] = useState(false)
+
+  const handleFileSelected = (file: File) => {
+    setIsLoading(true)
+    // TODO: Extract PDF text and send to backend
+    setTimeout(() => setIsLoading(false), 2000)
+  }
+
   return (
     <div className="app">
       <header>
         <h1>PDF Insight</h1>
-        <p>Upload PDF, analyze content, export JSON</p>
+        <p>Wczytaj PDF i otrzymaj podsumowanie wraz z danymi strukturalnymi</p>
       </header>
       <main>
-        <p>Coming soon...</p>
+        <PDFUploader onFileSelected={handleFileSelected} isLoading={isLoading} />
       </main>
     </div>
   )
