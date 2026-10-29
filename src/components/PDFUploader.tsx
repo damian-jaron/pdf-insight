@@ -108,7 +108,12 @@ export function PDFUploader({ onFileSelected, isLoading }: PDFUploaderProps) {
               <div className="upload-icon">📄</div>
               <p className="drop-text">Upuść PDF tutaj</p>
               <p className="drop-subtext">lub</p>
-              <button className="select-button">Wybierz plik</button>
+              <button
+                className="select-button"
+                onClick={() => document.getElementById('pdf-file-input')?.click()}
+              >
+                Wybierz plik
+              </button>
               <p className="file-info">Max 10 MB</p>
             </>
           )}
