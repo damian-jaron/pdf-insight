@@ -11,62 +11,7 @@ interface ExtractedData {
   fileName: string;
 }
 
-//const API_BASE_URL = 'http://localhost:8787'
-const API_BASE_URL =
-  'https://pdf-insight-api-production.damian-jaron.workers.dev';
-
-// Mock data dla testowania UI
-const MOCK_ANALYSIS_RESULT: AnalysisResult = {
-  document: {
-    fileName: 'Umowa_14_2026.pdf',
-    pages: 12,
-    language: 'pl',
-    type: 'umowa',
-    title: 'Umowa ramowa nr 14/2026',
-    date: '2026-03-12',
-  },
-  summary:
-    'Umowa ramowa zawarta między Nordwave Logistics sp. z o.o. a Kwadrat Software dotycząca wdrożenia i utrzymania systemu CRM. Umowa obowiązuje przez 12 miesięcy od daty podpisania. Wynagrodzenie roczne wynosi 2 500 000,00 zł.',
-  keyPoints: [
-    'Okres umowy: 12 miesięcy od 12.03.2026',
-    'Wynagrodzenie: 2 500 000,00 zł rocznie',
-    'Przedmiot: Wdrożenie i utrzymanie systemu CRM',
-    'Strony: Nordwave Logistics i Kwadrat Software',
-    'Umowa poufna - do użytku wyłącznie stron',
-  ],
-  entities: {
-    organizations: ['Nordwave Logistics sp. z o.o.', 'Kwadrat Software'],
-    people: [
-      'Annę Kowalczyk — Prezes Zarządu',
-      'Marka Zielińskiego — Członka Zarządu',
-    ],
-  },
-  amounts: [
-    {
-      value: 2500000.0,
-      currency: 'PLN',
-      context: 'wynagrodzenie roczne',
-    },
-  ],
-  dates: [
-    {
-      date: '2026-03-12',
-      context: 'data zawarcia umowy',
-    },
-    {
-      date: '2027-03-11',
-      context: 'koniec okresu umowy',
-    },
-  ],
-  keywords: [
-    'umowa ramowa',
-    'CRM',
-    'wdrożenie',
-    'system',
-    'utrzymanie',
-    'usługi',
-  ],
-};
+const API_BASE_URL = 'http://localhost:8787';
 
 function App() {
   const [isLoading, setIsLoading] = useState(false);
