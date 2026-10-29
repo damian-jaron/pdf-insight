@@ -19,6 +19,11 @@
   box-shadow: var(--shadow-md);
   text-align: center;
   cursor: pointer;
+  transition:
+    background-color var(--dur) var(--ease-out),
+    border-color var(--dur) var(--ease-out),
+    box-shadow var(--dur) var(--ease-out),
+    transform var(--dur-slow) var(--ease-spring);
 }
 
 /* Siatka kropek */
@@ -31,6 +36,7 @@
   background-size: 18px 18px;
   -webkit-mask-image: radial-gradient(circle at 50% 50%, #000, transparent 75%);
   mask-image: radial-gradient(circle at 50% 50%, #000, transparent 75%);
+  transition: opacity var(--dur) var(--ease-out);
 }
 
 .drop-zone:hover {
@@ -52,6 +58,10 @@
   border-radius: 50%;
   background: var(--lime);
   color: var(--on-lime);
+  transition:
+    transform var(--dur-slow) var(--ease-spring),
+    background-color var(--dur) var(--ease-out),
+    color var(--dur) var(--ease-out);
 }
 
 .upload-icon::after {
@@ -102,6 +112,7 @@
   font-size: var(--text-2xs);
   letter-spacing: 0.06em;
   text-transform: uppercase;
+  transition: background-color var(--dur) var(--ease-out), border-color var(--dur) var(--ease-out), color var(--dur) var(--ease-out);
 }
 
 /* Stan: przeciąganie */
@@ -159,6 +170,7 @@
   z-index: -1;
   background: linear-gradient(to bottom, transparent, var(--accent-ring) 92%, var(--lime));
   border-bottom: 2px solid var(--lime);
+  animation: scan 2s var(--ease-out) infinite;
 }
 
 .spinner {
@@ -168,6 +180,11 @@
   background: conic-gradient(from 0deg, transparent 20%, var(--text));
   -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
   mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
+  animation: spin 0.9s linear infinite;
+}
+
+.drop-zone.is-dragging .upload-icon {
+  animation: bob 1.2s var(--ease-out) infinite alternate;
 }
 
 /* Stan: błąd */
@@ -192,6 +209,7 @@
   font-size: var(--text-sm);
   font-weight: 500;
   line-height: var(--leading-snug);
+  animation: shake 420ms var(--ease-out);
 }
 
 .uploader-error svg {
@@ -205,3 +223,43 @@
   }
 }
 
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes scan {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(250%);
+  }
+}
+
+@keyframes bob {
+  to {
+    transform: translateY(-14px) scale(1.08);
+  }
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: none;
+  }
+  20% {
+    transform: translateX(-6px);
+  }
+  40% {
+    transform: translateX(5px);
+  }
+  60% {
+    transform: translateX(-3px);
+  }
+  80% {
+    transform: translateX(2px);
+  }
+}

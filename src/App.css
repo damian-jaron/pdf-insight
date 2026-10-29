@@ -67,6 +67,7 @@
   background: var(--lime);
   color: var(--on-lime);
   transform: rotate(-1.5deg);
+  animation: hero-pop 800ms var(--ease-spring) 120ms both;
 }
 
 .app-header p {
@@ -125,6 +126,7 @@
   color: var(--code-text);
   border-radius: var(--radius-tile);
   box-shadow: var(--shadow-lg);
+  animation: rise var(--dur-slow) var(--ease-out) both;
 }
 
 .extraction-info__head {
@@ -177,6 +179,7 @@
   border-radius: 50%;
   background: currentColor;
   box-shadow: 0 0 0 0 currentColor;
+  animation: pulse 2.2s var(--ease-out) infinite;
 }
 
 .text-preview {
@@ -194,3 +197,35 @@
   mask-image: linear-gradient(to bottom, #000 55%, transparent);
 }
 
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes hero-pop {
+  from {
+    opacity: 0;
+    transform: rotate(-8deg) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(-1.5deg);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 oklch(0.9 0.19 124 / 0.6);
+  }
+  70%,
+  100% {
+    box-shadow: 0 0 0 8px oklch(0.9 0.19 124 / 0);
+  }
+}
