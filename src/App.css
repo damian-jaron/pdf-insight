@@ -27,3 +27,41 @@ main {
   margin: 3rem auto;
   padding: 0 1rem;
 }
+
+.error-message {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid #ef4444;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin: 2rem 0;
+  color: #fca5a5;
+  text-align: center;
+}
+
+.extraction-info {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid #10b981;
+  border-radius: 8px;
+  padding: 2rem;
+  margin: 2rem 0;
+}
+
+.extraction-info p {
+  margin: 0.5rem 0;
+  font-size: 1rem;
+  color: #d1fae5;
+}
+
+.text-preview {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid #334155;
+  border-radius: 6px;
+  padding: 1rem;
+  margin-top: 1.5rem;
+  max-height: 300px;
+  overflow-y: auto;
+  font-size: 0.875rem;
+  color: #cbd5e1;
+  font-family: 'Courier New', monospace;
+  line-height: 1.4;
+}

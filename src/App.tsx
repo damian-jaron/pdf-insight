@@ -1,16 +1,34 @@
 import { useState } from 'react'
 import { PDFUploader } from './components/PDFUploader'
+import { extractTextFromPDF } from './lib/pdfExtractor'
 import './App.css'
+
+interface ExtractedData {
+  text: string
+  pages: number
+  fileName: string
+}
 
 function App() {
   const [isLoading, setIsLoading] = useState(false)
-  const [_selectedFile, _setSelectedFile] = useState<File | null>(null)
+  const [extractedData, setExtractedData] = useState<ExtractedData | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
-  const handleFileSelected = (file: File) => {
-    _setSelectedFile(file)
+  const handleFileSelected = async (file: File) => {
     setIsLoading(true)
-    // TODO: Extract PDF text and send to backend
-    setTimeout(() => setIsLoading(false), 2000)
+    setError(null)
+    setExtractedData(null)
+
+    try {
+      const data = await extractTextFromPDF(file)
+      setExtractedData(data)
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'Nieznany błąd podczas ekstrakcji',
+      )
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -21,6 +39,21 @@ function App() {
       </header>
       <main>
         <PDFUploader onFileSelected={handleFileSelected} isLoading={isLoading} />
+
+        {error && (
+          <div className="error-message">
+            <p>❌ {error}</p>
+          </div>
+        )}
+
+        {extractedData && (
+          <div className="extraction-info">
+            <p>📄 {extractedData.fileName}</p>
+            <p>📊 {extractedData.pages} stron(y)</p>
+            <p>✅ Tekst odczytany pomyślnie</p>
+            <pre className="text-preview">{extractedData.text.substring(0, 500)}...</pre>
+          </div>
+        )}
       </main>
     </div>
   )
