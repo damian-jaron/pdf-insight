@@ -133,7 +133,7 @@ pdf-insight-backend/
 │   │   └── analyze.ts      # POST /analyze
 │   ├── lib/
 │   │   ├── schema.ts       # Zod validation
-│   │   ├── ai-client.ts    # Komunikacja z LLM
+│   │   ├── gemini-client.ts    # Komunikacja z LLM
 │   │   └── validators.ts   # Business logic validation
 │   ├── middleware/
 │   │   ├── cors.ts         # CORS setup
@@ -249,7 +249,7 @@ router.post('/analyze', async (req, res) => {
 });
 ```
 
-**Logika AI** (lib/ai-client.ts):
+**Logika AI** (lib/gemini-client.ts):
 
 ```typescript
 export async function analyzeWithAI(
