@@ -5,7 +5,7 @@ import './App.css'
 function App() {
   const [isLoading, setIsLoading] = useState(false)
 
-  const handleFileSelected = (file: File) => {
+  const handleFileSelected = (_file: File) => {
     setIsLoading(true)
     // TODO: Extract PDF text and send to backend
     setTimeout(() => setIsLoading(false), 2000)
