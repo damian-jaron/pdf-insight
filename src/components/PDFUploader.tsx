@@ -1,133 +1,153 @@
-import { useState } from 'react'
-import '../styles/PDFUploader.css'
+import { useRef, useState } from "react";
+import type { ChangeEvent, DragEvent, KeyboardEvent } from "react";
+import { AlertIcon, UploadIcon } from "./icons";
+import "./PDFUploader.css";
 
 interface PDFUploaderProps {
-  onFileSelected: (file: File) => void
-  isLoading?: boolean
+  onFileSelect: (file: File) => void;
+  isProcessing?: boolean;
+  error?: string | null;
 }
 
-type UploadState = 'idle' | 'dragging' | 'error'
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
-export function PDFUploader({ onFileSelected, isLoading }: PDFUploaderProps) {
-  const [state, setState] = useState<UploadState>('idle')
-  const [error, setError] = useState<string | null>(null)
+export function PDFUploader({
+  onFileSelect,
+  isProcessing = false,
+  error = null,
+}: PDFUploaderProps) {
+  const [isDragging, setIsDragging] = useState(false);
+  const [localError, setLocalError] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10 MB
-
-  const validateFile = (file: File): string | null => {
-    if (file.type !== 'application/pdf') {
-      return 'Tylko pliki PDF są obsługiwane'
+  const handleFile = (file: File | undefined) => {
+    if (!file) return;
+    if (file.type !== "application/pdf") {
+      setLocalError("Wybierz plik w formacie PDF.");
+      return;
     }
     if (file.size > MAX_FILE_SIZE) {
-      return `Plik jest zbyt duży. Maksymalny rozmiar to ${MAX_FILE_SIZE / 1024 / 1024}MB`
+      setLocalError("Plik jest za duży. Maksymalny rozmiar to 10 MB.");
+      return;
     }
-    return null
-  }
+    setLocalError(null);
+    onFileSelect(file);
+  };
 
-  const handleFile = (file: File) => {
-    setError(null)
-    const validationError = validateFile(file)
+  const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    if (!isProcessing) setIsDragging(true);
+  };
 
-    if (validationError) {
-      setError(validationError)
-      setState('error')
-      return
+  const handleDragLeave = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (isProcessing) return;
+    handleFile(e.dataTransfer.files[0]);
+  };
+
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    handleFile(e.target.files?.[0]);
+    e.target.value = "";
+  };
+
+  const openPicker = () => {
+    if (!isProcessing) inputRef.current?.click();
+  };
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      openPicker();
     }
+  };
 
-    setState('idle')
-    onFileSelected(file)
-  }
-
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault()
-    e.stopPropagation()
-
-    setState('idle')
-
-    const files = e.dataTransfer.files
-    if (files.length > 0) {
-      handleFile(files[0])
-    }
-  }
-
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setState('dragging')
-  }
-
-  const handleDragLeave = () => {
-    setState('idle')
-  }
-
-  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.currentTarget.files
-    if (files && files.length > 0) {
-      handleFile(files[0])
-    }
-  }
-
-  const handleRetry = () => {
-    setError(null)
-    setState('idle')
-  }
+  const shownError = error ?? localError;
+  const stateClass = isProcessing
+    ? "is-processing"
+    : isDragging
+      ? "is-dragging"
+      : shownError
+        ? "is-error"
+        : "";
 
   return (
     <div className="pdf-uploader">
-      {state === 'error' && error ? (
-        <div className="error-container">
-          <div className="error-icon">⚠️</div>
-          <p className="error-message">{error}</p>
-          <button onClick={handleRetry} className="retry-button">
-            Spróbuj ponownie
-          </button>
-        </div>
-      ) : (
-        <div
-          className={`drop-zone ${state === 'dragging' ? 'dragging' : ''} ${
-            isLoading ? 'loading' : ''
-          }`}
-          onDrop={handleDrop}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          role="button"
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              document.getElementById('pdf-file-input')?.click()
-            }
-          }}
-        >
-          {isLoading ? (
-            <>
-              <div className="spinner"></div>
-              <p className="drop-text">Przetwarzanie pliku...</p>
-            </>
+      <div
+        className={`drop-zone ${stateClass}`.trim()}
+        role="button"
+        tabIndex={0}
+        aria-busy={isProcessing}
+        aria-disabled={isProcessing}
+        aria-describedby={shownError ? "pdf-uploader-error" : undefined}
+        onClick={openPicker}
+        onKeyDown={handleKeyDown}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+      >
+        <div className="upload-icon">
+          {isProcessing ? (
+            <span className="spinner" aria-hidden="true" />
+          ) : shownError ? (
+            <AlertIcon size={28} />
           ) : (
-            <>
-              <div className="upload-icon">📄</div>
-              <p className="drop-text">Upuść PDF tutaj</p>
-              <p className="drop-subtext">lub</p>
-              <button
-                className="select-button"
-                onClick={() => document.getElementById('pdf-file-input')?.click()}
-              >
-                Wybierz plik
-              </button>
-              <p className="file-info">Max 10 MB</p>
-            </>
+            <UploadIcon size={28} strokeWidth={2} />
           )}
-          <input
-            id="pdf-file-input"
-            type="file"
-            accept=".pdf"
-            onChange={handleFileInput}
-            style={{ display: 'none' }}
-            disabled={isLoading}
-            aria-label="Wgranie pliku PDF"
-          />
         </div>
+
+        {isProcessing ? (
+          <>
+            <p className="drop-text" aria-live="polite">
+              Przetwarzanie dokumentu…
+            </p>
+            <p className="drop-subtext">Odczytuję tekst i analizuję treść</p>
+          </>
+        ) : (
+          <>
+            <p className="drop-text">
+              {isDragging ? "Upuść, aby wczytać" : "Upuść PDF tutaj"}
+            </p>
+            <p className="drop-subtext">lub</p>
+            <button
+              type="button"
+              className="btn btn--ink select-button"
+              tabIndex={-1}
+              onClick={(e) => {
+                e.stopPropagation();
+                openPicker();
+              }}
+            >
+              Wybierz plik
+            </button>
+            <p className="file-info">Max 10 MB</p>
+          </>
+        )}
+
+        <input
+          ref={inputRef}
+          id="pdf-file-input"
+          type="file"
+          accept=".pdf"
+          aria-label="Wgranie pliku PDF"
+          style={{ display: "none" }}
+          onChange={handleInputChange}
+        />
+      </div>
+
+      {shownError && !isProcessing && (
+        <p id="pdf-uploader-error" className="uploader-error" role="alert">
+          <AlertIcon size={18} />
+          {shownError}
+        </p>
       )}
     </div>
-  )
+  );
 }
+
+export default PDFUploader;

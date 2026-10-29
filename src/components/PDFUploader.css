@@ -1,0 +1,265 @@
+.pdf-uploader {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.drop-zone {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: var(--space-3);
+  min-height: 22rem;
+  padding: var(--space-12) var(--space-6);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-tile);
+  box-shadow: var(--shadow-md);
+  text-align: center;
+  cursor: pointer;
+  transition:
+    background-color var(--dur) var(--ease-out),
+    border-color var(--dur) var(--ease-out),
+    box-shadow var(--dur) var(--ease-out),
+    transform var(--dur-slow) var(--ease-spring);
+}
+
+/* Siatka kropek */
+.drop-zone::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image: radial-gradient(var(--dot) 1px, transparent 1.4px);
+  background-size: 18px 18px;
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, #000, transparent 75%);
+  mask-image: radial-gradient(circle at 50% 50%, #000, transparent 75%);
+  transition: opacity var(--dur) var(--ease-out);
+}
+
+.drop-zone:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-lg);
+}
+
+.drop-zone:focus-visible {
+  box-shadow: var(--focus-ring), var(--shadow-lg);
+}
+
+.upload-icon {
+  position: relative;
+  width: 76px;
+  height: 76px;
+  margin-bottom: var(--space-3);
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--lime);
+  color: var(--on-lime);
+  transition:
+    transform var(--dur-slow) var(--ease-spring),
+    background-color var(--dur) var(--ease-out),
+    color var(--dur) var(--ease-out);
+}
+
+.upload-icon::after {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  border: 1px solid var(--border-strong);
+  opacity: 0;
+  transform: scale(0.85);
+}
+
+.drop-zone:hover .upload-icon {
+  transform: translateY(-4px) rotate(-6deg);
+}
+
+.drop-zone:hover .upload-icon::after {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.drop-text {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: 650;
+  font-variation-settings: "opsz" 72;
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-tight);
+}
+
+.drop-subtext {
+  color: var(--text-subtle);
+  font-size: var(--text-sm);
+}
+
+.select-button {
+  margin-top: var(--space-1);
+}
+
+.file-info {
+  margin-top: var(--space-3);
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition: background-color var(--dur) var(--ease-out), border-color var(--dur) var(--ease-out), color var(--dur) var(--ease-out);
+}
+
+/* Stan: przeciąganie */
+.drop-zone.is-dragging {
+  background: var(--lime);
+  border-color: transparent;
+  color: var(--on-lime);
+  box-shadow: 0 0 0 8px var(--accent-ring), var(--shadow-lg);
+  transform: scale(1.015);
+  --dot: oklch(0.2 0.04 124 / 0.22);
+}
+
+.drop-zone.is-dragging .upload-icon {
+  background: var(--on-lime);
+  color: var(--lime);
+  transform: translateY(-8px) scale(1.08);
+}
+
+.drop-zone.is-dragging .drop-subtext,
+.drop-zone.is-dragging .file-info {
+  color: var(--on-lime);
+}
+
+.drop-zone.is-dragging .file-info {
+  background: transparent;
+  border-color: oklch(0.2 0.04 124 / 0.3);
+}
+
+.drop-zone.is-dragging > * {
+  pointer-events: none;
+}
+
+/* Stan: przetwarzanie */
+.drop-zone.is-processing {
+  cursor: progress;
+}
+
+.drop-zone.is-processing:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.drop-zone.is-processing .upload-icon {
+  background: var(--surface-2);
+  transform: none;
+}
+
+/* Linia skanowania */
+.drop-zone.is-processing::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 40%;
+  z-index: -1;
+  background: linear-gradient(to bottom, transparent, var(--accent-ring) 92%, var(--lime));
+  border-bottom: 2px solid var(--lime);
+  animation: scan 2s var(--ease-out) infinite;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, transparent 20%, var(--text));
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
+  animation: spin 0.9s linear infinite;
+}
+
+.drop-zone.is-dragging .upload-icon {
+  animation: bob 1.2s var(--ease-out) infinite alternate;
+}
+
+/* Stan: błąd */
+.drop-zone.is-error {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 4px var(--danger-soft), var(--shadow-md);
+}
+
+.drop-zone.is-error .upload-icon {
+  background: var(--danger-soft);
+  color: var(--danger-text);
+}
+
+.uploader-error {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-lg);
+  background: var(--danger-soft);
+  color: var(--danger-text);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  line-height: var(--leading-snug);
+  animation: shake 420ms var(--ease-out);
+}
+
+.uploader-error svg {
+  flex: none;
+  margin-top: 1px;
+}
+
+@media (min-width: 640px) {
+  .drop-zone {
+    min-height: 26rem;
+  }
+}
+
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes scan {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(250%);
+  }
+}
+
+@keyframes bob {
+  to {
+    transform: translateY(-14px) scale(1.08);
+  }
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: none;
+  }
+  20% {
+    transform: translateX(-6px);
+  }
+  40% {
+    transform: translateX(5px);
+  }
+  60% {
+    transform: translateX(-3px);
+  }
+  80% {
+    transform: translateX(2px);
+  }
+}

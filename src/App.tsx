@@ -1,40 +1,42 @@
 import { useState } from 'react';
 import { PDFUploader } from './components/PDFUploader';
 import { ResultsView } from './components/ResultsView';
+import type { AnalysisResult } from './components/ResultsView';
+import { FileIcon } from './components/icons';
 import { extractTextFromPDF } from './lib/pdfExtractor';
-import { AnalysisResult } from './lib/schema';
+import './styles/tokens.css';
+import './styles/base.css';
 import './App.css';
 
-interface ExtractedData {
-  text: string;
-  pages: number;
+const API_BASE_URL = 'http://localhost:8787';
+/*const API_BASE_URL =
+  'https://pdf-insight-api-production.damian-jaron.workers.dev';*/
+
+interface ExtractionInfo {
   fileName: string;
+  pageCount: number;
+  text: string;
 }
 
-const API_BASE_URL = 'http://localhost:8787';
-
 function App() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [extractedData, setExtractedData] = useState<ExtractedData | null>(
-    null
-  );
-  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(
-    null
-  );
+  const [extraction, setExtraction] = useState<ExtractionInfo | null>(null);
+  const [result, setResult] = useState<AnalysisResult | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isDebugMode, setIsDebugMode] = useState(false);
 
-  const handleFileSelected = async (file: File) => {
-    setIsLoading(true);
+  const handleFileSelect = async (file: File) => {
+    setIsProcessing(true);
     setError(null);
-    setExtractedData(null);
-    setAnalysisResult(null);
-
+    setResult(null);
     try {
-      // Step 1: Extract text from PDF
       const data = await extractTextFromPDF(file);
-      setExtractedData(data);
+      setExtraction({
+        fileName: file.name,
+        pageCount: data.pages,
+        text: data.text,
+      });
 
-      // Step 2: Send to backend API for analysis
       const response = await fetch(`${API_BASE_URL}/analyze`, {
         method: 'POST',
         headers: {
@@ -42,7 +44,7 @@ function App() {
         },
         body: JSON.stringify({
           text: data.text,
-          fileName: data.fileName,
+          fileName: file.name,
           pages: data.pages,
         }),
       });
@@ -51,55 +53,87 @@ function App() {
         throw new Error(`API error: ${response.statusText}`);
       }
 
-      const result = await response.json();
-      setAnalysisResult(result);
+      const analysis = await response.json();
+      setResult(analysis);
     } catch (err) {
       setError(
-        err instanceof Error
-          ? err.message
-          : 'Nieznany błąd podczas przetwarzania'
+        err instanceof Error ? err.message : 'Nie udało się odczytać pliku.'
       );
     } finally {
-      setIsLoading(false);
+      setIsProcessing(false);
     }
   };
 
   return (
-    <div className="app">
-      <header>
-        <h1>PDF Insight</h1>
+    <div className={`app${isDebugMode ? ' debug-mode' : ''}`} style={isDebugMode ? {
+      '--dur-slow': '0ms',
+      '--dur': '0ms',
+      '--dur-fast': '0ms'
+    } as React.CSSProperties : undefined}>
+      <div className="app-ambient" aria-hidden="true" />
+      <header className="app-header">
+        <button
+          onClick={() => setIsDebugMode(!isDebugMode)}
+          style={{
+            position: 'fixed',
+            top: '1rem',
+            right: '1rem',
+            zIndex: 1000,
+            padding: '0.5rem 1rem',
+            fontSize: '0.75rem',
+            background: isDebugMode ? 'var(--lime)' : 'var(--text)',
+            color: isDebugMode ? 'var(--on-lime)' : 'var(--bg)',
+            border: 'none',
+            borderRadius: '9999px',
+            cursor: 'pointer',
+            fontWeight: 600
+          }}
+        >
+          {isDebugMode ? '✓ Debug ON' : 'Debug'}
+        </button>
+        <div className="brand-row" aria-hidden="true">
+          <span className="brand-mark">
+            <FileIcon size={16} strokeWidth={2.25} />
+          </span>
+          pdf-insight
+        </div>
+        <h1>
+          PDF <span className="hero-accent">Insight</span>
+        </h1>
         <p>Wczytaj PDF i otrzymaj podsumowanie wraz z danymi strukturalnymi</p>
       </header>
-      <main>
-        <PDFUploader
-          onFileSelected={handleFileSelected}
-          isLoading={isLoading}
-        />
 
-        {error && (
-          <div className="error-message">
-            <p>❌ {error}</p>
-          </div>
-        )}
+      <main className="app-main">
+        <div className={`workspace${extraction ? ' has-extraction' : ''}`}>
+          <PDFUploader
+            onFileSelect={handleFileSelect}
+            isProcessing={isProcessing}
+            error={error}
+          />
 
-        {extractedData && (
-          <>
-            <div className="extraction-info">
-              <p>📄 {extractedData.fileName}</p>
-              <p>📊 {extractedData.pages} stron(y)</p>
-              <p>✅ Tekst odczytany pomyślnie</p>
+          {extraction && (
+            <section className="extraction-info" aria-label="Wynik ekstrakcji">
+              <div className="extraction-info__head">
+                <span className="extraction-info__icon" aria-hidden="true">
+                  <FileIcon />
+                </span>
+                <div>
+                  <p className="extraction-info__file">{extraction.fileName}</p>
+                  <p className="extraction-info__pages">
+                    {extraction.pageCount} stron(y)
+                  </p>
+                </div>
+                <p className="status-badge">Tekst odczytany pomyślnie</p>
+              </div>
               <pre className="text-preview">
-                {extractedData.text.substring(0, 500)}...
+                {extraction.text.slice(0, 500)}
+                {extraction.text.length > 500 ? '...' : ''}
               </pre>
-            </div>
+            </section>
+          )}
+        </div>
 
-            {analysisResult ? (
-              <ResultsView data={analysisResult} />
-            ) : (
-              <div className="mock-notice">ℹ️ Oczekiwanie na analizę AI...</div>
-            )}
-          </>
-        )}
+        {result && <ResultsView result={result} />}
       </main>
     </div>
   );
