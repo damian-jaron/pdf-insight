@@ -6,6 +6,8 @@ Aplikacja webowa do analizy PDF przy użyciu AI. Wczytaj PDF, otrzymaj podsumowa
 
 🔗 **Live Demo**: https://damian-jaron.github.io/pdf-insight/
 
+![PDF Insight Screenshot](./public/images/pdf-insight.png)
+
 ## Architektura
 
 Szczegółowy plan implementacji: [ARCHITECTURE.md](./ARCHITECTURE.md)
@@ -78,15 +80,14 @@ cp .env.example .env.local
 
 Edytuj `.env.local`:
 ```env
-VITE_API_URL=https://your-api.workers.dev/analyze
+# Production (GitHub Pages)
+VITE_API_URL=https://pdf-insight-api-production.damian-jaron.workers.dev
+
+# Local development
+# VITE_API_URL=http://localhost:8787
 ```
 
-## Zmienne Środowiskowe
-
-```env
-# .env.example
-VITE_API_URL=https://your-api.workers.dev/analyze
-```
+**Notatka:** Plik `.env.local` jest w `.gitignore` - nigdy nie commituj API URLs!
 
 ## Struktura Projektu
 
