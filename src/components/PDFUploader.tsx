@@ -126,6 +126,7 @@ export function PDFUploader({
               Wybierz plik
             </button>
             <p className="file-info">Max 10 MB</p>
+            <p className="file-info">Plik będzie przesłany do AI do analizy</p>
           </>
         )}
 
