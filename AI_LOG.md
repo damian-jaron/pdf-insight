@@ -63,13 +63,14 @@ Waliduj: ISO 8601 dla dat, ISO 4217 dla walut, enum dla type.
 ```
 Zbuduj backend na Cloudflare Workers z:
 - TypeScript
-- Google Gemini 1.5 Flash API
+- Google Gemini 3.5 Flash Lite API (darmowy, lekki model)
 - CORS middleware
 - Rate limiting (10 req/min per IP)
 - Secret management dla GOOGLE_AI_API_KEY
 - /analyze endpoint: POST z text, fileName, pages
+- JSON parsing + markdown stripping (model może zwrócić ```json ... ```)
 
-Waliduj odpowiedź AI przed zwróceniem do frontend'u.
+Waliduj odpowiedź AI przed zwróceniem do frontend'u za pomocą Zod schematu.
 ```
 
 **Rezultat**: pdf-insight-backend z src/routes/analyze.ts
@@ -99,18 +100,21 @@ Skonfiguruj GitHub Pages dla React SPA:
 - **Lekcja**: Klucz API MUSI być poza przeglądarką
 
 ### Issue #3: Google Gemini API Integration (Darmowy Model)
-- ❌ **Problem**: Integracja z darmowym Google Gemini 1.5 Flash API wymagała:
-  - Setup OAuth credentials w Google Cloud
+- ❌ **Problem**: Integracja z darmowym Google Gemini 3.5 Flash Lite API wymagała:
+  - Setup Google AI API key w Google AI Studio
   - Rate limiting (darmowy tier: 15 req/min)
   - Timeout handling (30s limit na Cloudflare Workers)
-  - Walidacja odpowiedzi JSON
+  - Walidacja odpowiedzi JSON (model może wrócić markdown zamiast pure JSON)
+  - Markdown stripping (```json ... ``` wrappers)
 - ✅ **Rozwiązanie**:
-  - Użycie `google-generative-ai` SDK
+  - Bezpośredni fetch do Google Generative Language API
   - Retry logic (1 ponowna próba przy błędzie)
-  - Explicit prompt engineering dla spójnego JSON schematu
+  - Explicit prompt engineering: "zwróć WYŁĄCZNIE JSON (bez markdown)"
+  - JSON parsing z markdown stripping (linie 81-84)
   - Rate limiting middleware (10 req/min per IP, conservative)
+  - Zod schema validation na odpowiedzi
 - **Lekcja**: Darmowe API mają ograniczenia - lepiej być konserwatywnym z rate limitami
-- **Decyzja**: Gemini 1.5 Flash zamiast Sonnet/Claude - szybszy i tanszy dla MVP
+- **Decyzja**: Gemini 3.5 Flash Lite (lekka wersja) zamiast pełnych modeli - szybszy, tanszy, darmowy tier
 
 ## Decyzje Architektoniczne
 
