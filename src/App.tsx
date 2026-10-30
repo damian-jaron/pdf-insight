@@ -4,12 +4,10 @@ import { ResultsView } from './components/ResultsView';
 import type { AnalysisResult } from './components/ResultsView';
 import { FileIcon } from './components/icons';
 import { extractTextFromPDF } from './lib/pdfExtractor';
+import { analyzeDocument } from './api/analyzeAPI';
 import './styles/tokens.css';
 import './styles/base.css';
 import './App.css';
-
-const API_BASE_URL =
-  import.meta.env.VITE_API_URL || 'http://localhost:8787';
 
 interface ExtractionInfo {
   fileName: string;
@@ -35,23 +33,11 @@ function App() {
         text: data.text,
       });
 
-      const response = await fetch(`${API_BASE_URL}/analyze`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          text: data.text,
-          fileName: file.name,
-          pages: data.pages,
-        }),
+      const analysis = await analyzeDocument({
+        text: data.text,
+        fileName: file.name,
+        pages: data.pages,
       });
-
-      if (!response.ok) {
-        throw new Error(`API error: ${response.statusText}`);
-      }
-
-      const analysis = await response.json();
       setResult(analysis);
     } catch (err) {
       setError(
