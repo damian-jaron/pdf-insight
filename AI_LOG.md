@@ -59,6 +59,33 @@ Waliduj: ISO 8601 dla dat, ISO 4217 dla walut, enum dla type.
 
 **Rezultat**: src/lib/schema.ts + schema.test.ts
 
+### 4. Cloudflare Workers Backend
+```
+Zbuduj backend na Cloudflare Workers z:
+- TypeScript
+- Google Gemini 1.5 Flash API
+- CORS middleware
+- Rate limiting (10 req/min per IP)
+- Secret management dla GOOGLE_AI_API_KEY
+- /analyze endpoint: POST z text, fileName, pages
+
+Waliduj odpowiedź AI przed zwróceniem do frontend'u.
+```
+
+**Rezultat**: pdf-insight-backend z src/routes/analyze.ts
+
+### 5. GitHub Pages Deployment
+```
+Skonfiguruj GitHub Pages dla React SPA:
+- Vite config: base: '/pdf-insight/'
+- GitHub Actions: lint > type-check > build > deploy
+- Environment variables: VITE_API_URL dla producyjnego backend'u
+- CORS: restrict do domeny demo
+- Transparent info o wysyłaniu PDF do AI
+```
+
+**Rezultat**: GitHub Pages deployment + CI/CD pipeline
+
 ## Gdzie AI Się Myliło
 
 ### Issue #1: Vite Create Command
@@ -70,6 +97,20 @@ Waliduj: ISO 8601 dla dat, ISO 4217 dla walut, enum dla type.
 - ❌ **Problem**: Początkowa architektura miała backend w frontendzie
 - ✅ **Rozwiązanie**: Oddzielenie: Frontend (GitHub Pages) → Backend (Workers) → AI API
 - **Lekcja**: Klucz API MUSI być poza przeglądarką
+
+### Issue #3: Google Gemini API Integration (Darmowy Model)
+- ❌ **Problem**: Integracja z darmowym Google Gemini 1.5 Flash API wymagała:
+  - Setup OAuth credentials w Google Cloud
+  - Rate limiting (darmowy tier: 15 req/min)
+  - Timeout handling (30s limit na Cloudflare Workers)
+  - Walidacja odpowiedzi JSON
+- ✅ **Rozwiązanie**:
+  - Użycie `google-generative-ai` SDK
+  - Retry logic (1 ponowna próba przy błędzie)
+  - Explicit prompt engineering dla spójnego JSON schematu
+  - Rate limiting middleware (10 req/min per IP, conservative)
+- **Lekcja**: Darmowe API mają ograniczenia - lepiej być konserwatywnym z rate limitami
+- **Decyzja**: Gemini 1.5 Flash zamiast Sonnet/Claude - szybszy i tanszy dla MVP
 
 ## Decyzje Architektoniczne
 
@@ -176,5 +217,5 @@ Waliduj: ISO 8601 dla dat, ISO 4217 dla walut, enum dla type.
 
 ---
 
-**Last Updated**: 2026-10-29  
-**Status**: Phase 2 - Scaffolding Complete ✅
+**Last Updated**: 2026-10-30  
+**Status**: Phase 5 - Complete ✅ (GitHub Pages deployed, CI/CD working, API secured)
